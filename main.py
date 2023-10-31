@@ -1,3 +1,4 @@
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from sqlalchemy.exc import IntegrityError
@@ -22,7 +23,7 @@ unique_products = Table(
     "unique_products",
     metadata,
     Column("product_id", Integer, primary_key=True, autoincrement=True),
-    Column("product_name", String, nullable=False, unique=True),
+    Column("product_name", String, nullable=False),
     Column("Brand", String, nullable=False),
     Column("URL", String, nullable=False, unique=True),
     Column("Store", String, nullable=False),
@@ -99,41 +100,84 @@ def fetch_prices():
         with webdriver.Chrome(options=chrome_options) as driver:
             for product in products_and_scripts:
                 driver.get(product.URL)
-                try:
-                    script = product.js_script
-                    price_element = driver.execute_script(script)
 
-                    cleaned_price = "".join(
-                        filter(lambda x: x.isdigit() or x in ".,", price_element)
-                    )
-                    price_value = float(cleaned_price.replace(",", "."))
+                max_wait_time = 15  # Максимальное время ожидания в секундах
+                wait_time = 3  # Начальное время ожидания в секундах
 
-                    conn.execute(
-                        product_prices.insert().values(
-                            product_id=product.product_id, price=price_value
+                while max_wait_time > 0:
+                    try:
+                        script = product.js_script
+                        price_element = driver.execute_script(script)
+
+                        cleaned_price = "".join(
+                            filter(lambda x: x.isdigit() or x in ".,", price_element)
                         )
-                    )
-                    conn.commit()
+                        price_value = float(cleaned_price.replace(",", "."))
 
-                    print(
-                        f"Fetched price {price_value} for product {product.product_name}"
-                    )
+                        conn.execute(
+                            product_prices.insert().values(
+                                product_id=product.product_id, price=price_value
+                            )
+                        )
+                        conn.commit()
 
-                except Exception as e:
-                    print(f"Error fetching price for {product.product_name}: {e}")
+                        print(
+                            f"Fetched price {price_value} for product {product.product_name}"
+                        )
+                        break  # Выход из цикла, если данные успешно получены
+
+                    except Exception as e:
+                        print(f"Error fetching price for {product.product_name}: {e}")
+                        time.sleep(wait_time)  # Ожидание перед повторной попыткой
+                        max_wait_time -= wait_time
+                        wait_time *= 2  # Удваивание времени ожидания
+
+                        if wait_time > max_wait_time:
+                            wait_time = max_wait_time
 
 
 def main():
     # Пример добавления продукта
     add_product(
+        product_name="Apple",
+        product_url="https://zakupy.auchan.pl/shop/auchan-jablka.p-149427",
+        brand="Auchan",
+        js_script='document.querySelector("#productDetails > div > div._2Qj8._3yML._1heG.p-Jk._3drr._3C3T.hqot._130n._1Aqm > div > div.AqIs")',
+        store="Auchan",
+        country="Poland",
+        currency="PLN",
+    )
+
+
+    add_product(
         product_name="Nutella",
-        product_url="https://zakupy.auchan.pl/shop/nutella-krem-do-smarowania-z-orzechami-laskowymi-i-kakao.p-967549",
+        product_url="https://zakupy.auchan.pl/shop/nutella-krem-do-smarowania-z-orzechami-laskowymi-i-kakao.p-517659",
         brand="Ferrero",
         js_script='document.querySelector("#productDetails > div > div._2Qj8._3yML._1heG.p-Jk._3drr._3C3T.hqot._130n._1Aqm > div > div.AqIs")',
         store="Auchan",
         country="Poland",
         currency="PLN",
     )
+
+    # add_product(
+    #     product_name="Nutella",
+    #     product_url="https://www.tesco.com/groceries/en-GB/products/263914432",
+    #     brand="Heinz",
+    #     js_script='document.querySelector("#asparagus-root > div > div.template-wrapper > main > div > div > div.styled__PDPTileContainer-mfe-pdp__sc-ebmhjv-0.cEAseF.pdp-tile > div > section.styled__GridSection-mfe-pdp__sc-ebmhjv-1.bjEIyj > div.styled__Details-mfe-pdp__sc-ebmhjv-7.dqYwFc > div.styled__BuyBoxContainer-mfe-pdp__sc-ebmhjv-5.hkkbie > div > div > div.base-components__RootElement-sc-150pv2j-1.styled__Container-sc-v0qv7n-0.hjMZDF.gVxPxM.styled__StyledPrice-sc-159tobh-5.grMosf.ddsweb-buybox__price.ddsweb-price__container > p.styled__StyledHeading-sc-1a9r96t-2.gSatyL.styled__Text-sc-v0qv7n-1.ecTMDe")',
+    #     store="Tesco",
+    #     country="UK",
+    #     currency="GBP",
+    # )
+
+    # add_product(
+    #     product_name="Ketchup",
+    #     product_url="https://www.walmart.com/ip/Heinz-Tomato-Ketchup-20-oz-Bottle/15077427?athbdg=L1600&from=/search",
+    #     brand="Heinz",
+    #     js_script='document.querySelector("#maincontent > section > main > div.flex.undefined.flex-column.h-100 > div:nth-child(2) > div > div.w_aoqv.w_wRee.w_fdPt > div > div:nth-child(2) > div > div > div.nowrap.items-center.inline-flex > span.w_iUH7")',
+    #     store="Walmart",
+    #     country="USA",
+    #     currency="USD",
+    # )
 
     add_product(
         product_name="Milk 3.2%",

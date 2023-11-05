@@ -137,60 +137,11 @@ def fetch_prices():
 
 
 def main():
-    # Пример добавления продукта
-    add_product(
-        product_name="Apple",
-        product_url="https://zakupy.auchan.pl/shop/auchan-jablka.p-149427",
-        brand="Auchan",
-        js_script='document.querySelector("#productDetails > div > div._2Qj8._3yML._1heG.p-Jk._3drr._3C3T.hqot._130n._1Aqm > div > div.AqIs")',
-        store="Auchan",
-        country="Poland",
-        currency="PLN",
-    )
-
-
-    add_product(
-        product_name="Nutella",
-        product_url="https://zakupy.auchan.pl/shop/nutella-krem-do-smarowania-z-orzechami-laskowymi-i-kakao.p-517659",
-        brand="Ferrero",
-        js_script='document.querySelector("#productDetails > div > div._2Qj8._3yML._1heG.p-Jk._3drr._3C3T.hqot._130n._1Aqm > div > div.AqIs")',
-        store="Auchan",
-        country="Poland",
-        currency="PLN",
-    )
-
-    # add_product(
-    #     product_name="Nutella",
-    #     product_url="https://www.tesco.com/groceries/en-GB/products/263914432",
-    #     brand="Heinz",
-    #     js_script='document.querySelector("#asparagus-root > div > div.template-wrapper > main > div > div > div.styled__PDPTileContainer-mfe-pdp__sc-ebmhjv-0.cEAseF.pdp-tile > div > section.styled__GridSection-mfe-pdp__sc-ebmhjv-1.bjEIyj > div.styled__Details-mfe-pdp__sc-ebmhjv-7.dqYwFc > div.styled__BuyBoxContainer-mfe-pdp__sc-ebmhjv-5.hkkbie > div > div > div.base-components__RootElement-sc-150pv2j-1.styled__Container-sc-v0qv7n-0.hjMZDF.gVxPxM.styled__StyledPrice-sc-159tobh-5.grMosf.ddsweb-buybox__price.ddsweb-price__container > p.styled__StyledHeading-sc-1a9r96t-2.gSatyL.styled__Text-sc-v0qv7n-1.ecTMDe")',
-    #     store="Tesco",
-    #     country="UK",
-    #     currency="GBP",
-    # )
-
-    # add_product(
-    #     product_name="Ketchup",
-    #     product_url="https://www.walmart.com/ip/Heinz-Tomato-Ketchup-20-oz-Bottle/15077427?athbdg=L1600&from=/search",
-    #     brand="Heinz",
-    #     js_script='document.querySelector("#maincontent > section > main > div.flex.undefined.flex-column.h-100 > div:nth-child(2) > div > div.w_aoqv.w_wRee.w_fdPt > div > div:nth-child(2) > div > div > div.nowrap.items-center.inline-flex > span.w_iUH7")',
-    #     store="Walmart",
-    #     country="USA",
-    #     currency="USD",
-    # )
-
-    add_product(
-        product_name="Milk 3.2%",
-        product_url="https://zakupy.auchan.pl/shop/laciate-mleko-swieze-32percent.p-41595",
-        brand="Łaciate",
-        js_script='document.querySelector("#productDetails > div > div._2Qj8._3yML._1heG.p-Jk._3drr._3C3T.hqot._130n._1Aqm > div > div.AqIs")',
-        store="Auchan",
-        country="Poland",
-        currency="PLN",
-    )
-
     # Извлечение и сохранение цен для всех продуктов
-    fetch_prices()
+
+
+
+    # fetch_prices()
 
 
 if __name__ == "__main__":

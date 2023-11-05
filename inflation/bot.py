@@ -41,7 +41,6 @@ def fetch_prices(update, context):
     logger.info("Starting fetch_prices function")
 
     with webdriver.Chrome(options=chrome_options) as driver:
-        # products = UniqueProduct.objects.select_related('script').all()
         products = UniqueProduct.objects.prefetch_related('script_set').all()
 
         if not products:
@@ -53,18 +52,17 @@ def fetch_prices(update, context):
 
             max_wait_time = 60  # Максимальное время ожидания в секундах
             wait_time = 4  # Начальное время ожидания в секундах
+            success = False  # Флаг успешного получения цены
 
             driver.get(product.URL)
 
             while max_wait_time > 0:
                 try:
-                    # script = product.script.js_script
                     script_obj = product.script_set.first()
                     if script_obj:
                         script = script_obj.js_script
 
                     price_element = driver.execute_script(script)
-
                     cleaned_price = ''.join(filter(lambda x: x.isdigit() or x in '.,', price_element))
                     price_value = float(cleaned_price.replace(',', '.'))
 
@@ -75,18 +73,20 @@ def fetch_prices(update, context):
 
                     update.message.reply_text(f"Fetched price {price_value} for product {product.product_name}")
                     logger.info(f"Successfully fetched price {price_value} for product {product.product_name}")
-                    break  # Выход из цикла, если данные успешно получены
+                    success = True  # Установка флага в успешное состояние
+                    break  # Выход из цикла
 
                 except Exception as e:
-                    update.message.reply_text(f"Error fetching price for {product.product_name}. Most likely due to unfinished page loading. \nTrying again.")
                     logger.error(f"Error fetching price for {product.product_name}: {e}")
-
-                    time.sleep(wait_time)  # Ожидание перед повторной попыткой
+                    time.sleep(wait_time)
                     max_wait_time -= wait_time
-                    wait_time *= 2  # Удваивание времени ожидания
-
+                    wait_time *= 2
                     if wait_time > max_wait_time:
                         wait_time = max_wait_time
+
+            if not success:  # Если цена не была получена
+                update.message.reply_text(f"Error fetching price for {product.product_name}. Most likely due to unfinished page loading.")
+
 
 def echo(update, context):
     update.message.reply_text(update.message.text)
